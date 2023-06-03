@@ -1,6 +1,15 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { randomUUID } from "crypto";
-import { DynamoDB } from "aws-sdk";
+import { DynamoDB, SQS } from "aws-sdk";
+
+type Transaction = {
+  id: string;
+  userId: number;
+  amount: number;
+  operation: "CREDIT" | "DEBIT";
+};
+
+const TABLE = "Transactions";
 
 export const handler = async (
   event: APIGatewayProxyEventV2
@@ -9,19 +18,17 @@ export const handler = async (
     return { statusCode: 500, body: "Empty Body" };
   }
 
-  const transaction = {
+  const transaction: Transaction = {
     id: randomUUID(),
     ...JSON.parse(event.body),
   };
 
   try {
-    const dynamodb = new DynamoDB.DocumentClient();
-    await dynamodb
-      .put({
-        TableName: "Transactions",
-        Item: transaction,
-      })
-      .promise();
+    await insertTransaction(transaction);
+    console.log("New transacion insertion for: ", transaction);
+
+    await sendMessageQueue(transaction);
+    console.log("Message send to queue successfully!");
 
     return {
       statusCode: 201,
@@ -29,6 +36,31 @@ export const handler = async (
       body: JSON.stringify(transaction),
     };
   } catch (err) {
-    return { statusCode: 500, body: "Failed to add operation" };
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: "Operation failed", error: err }),
+    };
   }
 };
+
+async function insertTransaction(transaction: Transaction): Promise<any> {
+  const dynamodb = new DynamoDB.DocumentClient();
+  return dynamodb
+    .put({
+      TableName: TABLE,
+      Item: transaction,
+    })
+    .promise();
+}
+
+async function sendMessageQueue(transaction: Transaction): Promise<any> {
+  const sqs = new SQS();
+  await sqs
+    .sendMessage({
+      MessageBody: JSON.stringify({
+        transaction,
+      }),
+      QueueUrl: process.env.QUEUE_URL || "",
+    })
+    .promise();
+}
