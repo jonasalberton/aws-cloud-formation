@@ -1,5 +1,5 @@
 {
-  "app": "node bin/aws-cloud-formation.js",
+  "app": "npx ts-node --prefer-ts-exts bin/app.ts",
   "watch": {
     "include": [
       "**"
@@ -7,13 +7,16 @@
     "exclude": [
       "README.md",
       "cdk*.json",
-      "jest.config.js",
+      "**/*.d.ts",
+      "**/*.js",
+      "tsconfig.json",
       "package*.json",
       "yarn.lock",
       "node_modules",
       "test"
     ]
   },
+  "outDir": "dist",
   "context": {
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
