@@ -17,14 +17,14 @@ export const handler = async (event: SQSEvent) => {
     };
 
     try {
-      const balance = await getBalanceByUserId(transaction.userId);
+      const result = await getBalanceByUserId(transaction.userId);
+      const balance = result.Item;
 
       if (!balance) {
         await createBalance(transaction.userId, transaction.amount);
-        console.log(`New balance created for userId: `, transaction.userId);
         return;
       }
-
+      
       await updateAmountByUserId(transaction, balance);
 
       console.log(
@@ -51,7 +51,7 @@ function calcAmount(
 
 async function getBalanceByUserId(userId: number): Promise<any> {
   const dynamodb = new DynamoDB.DocumentClient();
-  const result = await dynamodb
+  return dynamodb
     .get({
       TableName: TABLE,
       Key: {
@@ -59,10 +59,6 @@ async function getBalanceByUserId(userId: number): Promise<any> {
       }
     })
     .promise();
-
-    console.log('retorno GET');
-
-  return result;
 }
 
 async function createBalance(userId: number, amount: number): Promise<any> {
@@ -82,6 +78,7 @@ async function updateAmountByUserId(
   transaction: Transaction,
   currentBalance: any
 ): Promise<any> {
+  
   const newAmount = calcAmount(
     currentBalance.amount,
     transaction.operation,
@@ -89,7 +86,7 @@ async function updateAmountByUserId(
   );
 
   const dynamodb = new DynamoDB.DocumentClient();
-  await dynamodb
+  return dynamodb
     .update({
       TableName: TABLE,
       Key: {
@@ -100,7 +97,7 @@ async function updateAmountByUserId(
         "#attr1": "amount",
       },
       ExpressionAttributeValues: {
-        ":val1": updateAmountByUserId,
+        ":val1": newAmount,
       },
       ReturnValues: "ALL_NEW",
     })

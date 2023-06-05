@@ -6,15 +6,16 @@ const TABLE = "Balance";
 export const handler = async (
   event: APIGatewayProxyEventV2
 ): Promise<APIGatewayProxyResultV2> => {
-  console.log("event", event);
+
+  const { userId } = event.pathParameters as any;
 
   try {
-    const balance = await getBalanceByUserId(1);
+    const { Item } = await getBalanceByUserId(userId);
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(balance),
+      body: JSON.stringify(Item),
     };
   } catch (error) {
     return {
@@ -26,15 +27,12 @@ export const handler = async (
 
 async function getBalanceByUserId(userId: number) {
   const dynamodb = new DynamoDB.DocumentClient();
-  const result = await dynamodb
-    .scan({
+  return dynamodb
+    .get({
       TableName: TABLE,
-      FilterExpression: "id = :id",
-      ExpressionAttributeValues: {
-        ":id": userId,
-      },
+      Key: {
+        id: Number(userId)
+      }
     })
     .promise();
-
-  return result.Items?.[0];
 }

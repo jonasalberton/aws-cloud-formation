@@ -79,10 +79,12 @@ export class AppStack extends Stack {
       restApiName: "BankApi",
     });
 
-    const transactions = api.root.addResource("transactions");
-    const balance = api.root.addResource("balance");
+    const transactionsController = api.root.addResource("transactions");
+    transactionsController.addMethod("POST", new LambdaIntegration(transactionFN));
 
-    balance.addMethod("GET", new LambdaIntegration(balanceFN));
-    transactions.addMethod("POST", new LambdaIntegration(transactionFN));
+    const balanceController = api.root.addResource("balance");
+    
+    const userBalance = balanceController.addResource('{userId}')
+    userBalance.addMethod("GET", new LambdaIntegration(balanceFN));
   }
 }
