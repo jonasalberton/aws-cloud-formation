@@ -11,7 +11,7 @@
     "cdk": "cdk",
     "deploy": "cdk deploy --require-approval never",
     "bootstrap": "cdk bootstrap",
-    "destroy": "cdk destroy --require-approval never"
+    "destroy": "cdk destroy --force"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.115",
