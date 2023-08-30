@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event'
  */
 
 test('Should find text', () => {
-  expect(1 +2 ).toBe(3);
+  expect(1 +1 ).toBe(2);
 });
 
 test('Should click on count button and increase count number', async () => {
