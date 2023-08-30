@@ -6,7 +6,7 @@ import { AppStack } from '../lib/app-stack';
 const app = new cdk.App();
 new AppStack(app, 'AppStack', {
   env: {
-    account: process.env.ACCOUNT,
+    account: process.env.AWS_ACCOUNT,
     region: 'us-east-1',
 }
 });
