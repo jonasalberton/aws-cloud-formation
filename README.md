@@ -38,7 +38,7 @@ body:
 ### Get user balance
 This endpoint will return the balance by userId
 
-HTTP POST `{{url}}/balance/{userID}`  
+HTTP GET `{{url}}/balance/{userID}`  
 response:
 
 ```js 
