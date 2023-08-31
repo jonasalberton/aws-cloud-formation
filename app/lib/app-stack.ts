@@ -108,7 +108,7 @@ export class AppStack extends Stack {
         name: "id",
         type: AttributeType.STRING,
       },
-      tableName: "Transactions",
+      tableName: "Transactions-" + namespace,
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
@@ -117,7 +117,7 @@ export class AppStack extends Stack {
         name: "id",
         type: AttributeType.NUMBER,
       },
-      tableName: "Balance",
+      tableName: "Balance-" + namespace,
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
