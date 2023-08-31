@@ -6,6 +6,12 @@ import { LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { Queue } from "aws-cdk-lib/aws-sqs";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { config } from 'dotenv';
+import { Bucket } from "aws-cdk-lib/aws-s3";
+import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
+import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
+import { CloudFrontWebDistribution, ViewerCertificate } from "aws-cdk-lib/aws-cloudfront";
+import { ARecord, HostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
+import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
 
 config();
 
@@ -14,7 +20,52 @@ export class AppStack extends Stack {
     super(scope, id, props);
 
     const namespace = process.env.NAMESPACE;
-    const domain = namespace === 'prod' ? 'churrasmaster.com' : `${namespace}.churrasmaster.com`;
+    const domain = 'churrasmasters.com.br';
+
+
+    /* FRONT_END */
+
+    const websiteBucket = new Bucket(this, `website-bucket-${namespace}`, {
+      websiteIndexDocument: 'index.html',
+      publicReadAccess: true,
+      blockPublicAccess: {
+        blockPublicAcls: false,
+        blockPublicPolicy: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false
+      },
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    });
+
+    new BucketDeployment(this, `website-deployment-${namespace}`, {
+      sources: [Source.asset('../frontend/dist')],
+      destinationBucket: websiteBucket,
+    });
+
+    const certificate = Certificate.fromCertificateArn(this, `certificate`, 'arn:aws:acm:us-east-1:813957740682:certificate/7c770434-9a03-4705-9bfd-dc431d02bef1');
+    
+    const distribution = new CloudFrontWebDistribution(this, `cloud-front-distribution-${namespace}`, {
+      comment: `cloud-front-distribution-${namespace}`,
+      originConfigs: [
+        {
+          s3OriginSource: {
+            s3BucketSource: websiteBucket,
+          },
+          behaviors: [{ isDefaultBehavior: true }],
+        },
+      ],
+      viewerCertificate: ViewerCertificate.fromAcmCertificate(certificate, {
+        aliases: [domain],
+      }),
+    });
+
+
+    new ARecord(this, `a-record-${namespace}`, {
+      recordName: domain,
+      target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
+      zone: HostedZone.fromLookup(this, 'Zone', { domainName: 'churrasmasters.com.br' }),
+    });
 
 
     /* QUEUE */

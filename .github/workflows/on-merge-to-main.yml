@@ -1,4 +1,4 @@
-name: Deploy to Stage
+name: Deploy to Staging
 on:
   push:
     branches: [main]
@@ -6,7 +6,7 @@ on:
 jobs:
   deploy:
     env:
-      NAMESPACE: stage
+      NAMESPACE: staging
       AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
     runs-on: ubuntu-latest
     steps:
