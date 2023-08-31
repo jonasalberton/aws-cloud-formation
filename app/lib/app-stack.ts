@@ -20,7 +20,7 @@ export class AppStack extends Stack {
     super(scope, id, props);
 
     const namespace = process.env.NAMESPACE;
-    const domain = 'churrasmasters.com.br';
+    const domain = namespace === 'prod' ? 'churrasmasters.com' : `${namespace}.churrasmasters.com`;
 
 
     /* FRONT_END */
@@ -43,7 +43,7 @@ export class AppStack extends Stack {
       destinationBucket: websiteBucket,
     });
 
-    const certificate = Certificate.fromCertificateArn(this, `certificate`, 'arn:aws:acm:us-east-1:813957740682:certificate/7c770434-9a03-4705-9bfd-dc431d02bef1');
+    const certificate = Certificate.fromCertificateArn(this, `certificate`, 'arn:aws:acm:us-east-1:813957740682:certificate/efc76fc4-768f-4e4a-bdae-772f178c4cf0');
     
     const distribution = new CloudFrontWebDistribution(this, `cloud-front-distribution-${namespace}`, {
       comment: `cloud-front-distribution-${namespace}`,
