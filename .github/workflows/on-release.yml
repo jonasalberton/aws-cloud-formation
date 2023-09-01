@@ -8,6 +8,7 @@ jobs:
     env:
       NAMESPACE: prod
       AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+      CERTIFICATE: ${{ secrets.CERTIFICATE }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
