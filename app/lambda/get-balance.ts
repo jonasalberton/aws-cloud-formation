@@ -1,7 +1,10 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
+import { config } from 'dotenv';
 
-const TABLE = "Balance";
+config();
+const namespace = process.env.NAMESPACE;
+const TABLE = "Balance-" + namespace;
 
 export const handler = async (
   event: APIGatewayProxyEventV2

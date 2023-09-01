@@ -1,6 +1,11 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { randomUUID } from "crypto";
 import { DynamoDB, SQS } from "aws-sdk";
+import { config } from 'dotenv';
+
+config();
+const namespace = process.env.NAMESPACE;
+const TABLE = "Transactions-" + namespace;
 
 type Transaction = {
   id: string;
@@ -8,8 +13,6 @@ type Transaction = {
   amount: number;
   operation: "CREDIT" | "DEBIT";
 };
-
-const TABLE = "Transactions";
 
 export const handler = async (
   event: APIGatewayProxyEventV2

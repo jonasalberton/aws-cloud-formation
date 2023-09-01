@@ -1,7 +1,10 @@
 import { SQSEvent } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
+import { config } from 'dotenv';
 
-const TABLE = "Balance";
+config();
+const namespace = process.env.NAMESPACE;
+const TABLE = "Balance-" + namespace;
 
 type Transaction = {
   id: string;
@@ -65,7 +68,7 @@ async function createBalance(userId: number, amount: number): Promise<any> {
   const dynamodb = new DynamoDB.DocumentClient();
   return dynamodb
     .put({
-      TableName: "Balance",
+      TableName: TABLE,
       Item: {
         id: userId,
         amount: amount,

@@ -22,7 +22,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Install Dependencies UI
+        run: npm install
+        working-directory: ./frontend
+  
+      - name: Build UI
+        run: npm run build
+        working-directory: ./frontend
+
       - name: Install Dependencies CDK
+        run: npm install
+        working-directory: ./app
+
+      - name: Build CDK
         run: npm install
         working-directory: ./app
 
